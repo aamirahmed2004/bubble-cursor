@@ -5,6 +5,7 @@ using UnityEngine;
 public class CursorManager : MonoBehaviour
 {
     [SerializeField] private GameObject areaCursor;
+    [SerializeField] private GameObject bubbleCursor;
     [SerializeField] private GameObject pointCursor;
 
     // Start is called before the first frame update
@@ -19,14 +20,9 @@ public class CursorManager : MonoBehaviour
         // Toggle cursor using the 'C' key
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (areaCursor.activeSelf)
-            {
-                SetActiveCursor(pointCursor);
-            }
-            else
-            {
-                SetActiveCursor(areaCursor);
-            }
+            if (areaCursor.activeSelf) { SetActiveCursor(pointCursor); }
+            else if (pointCursor.activeSelf) { SetActiveCursor(areaCursor); }
+            else { SetActiveCursor(bubbleCursor); }
         }
     }
 
