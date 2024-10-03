@@ -11,7 +11,7 @@ public class CursorManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SetActiveCursor(areaCursor);
+        SetActiveCursor(bubbleCursor);
     }
 
     // Update is called once per frame
@@ -21,8 +21,8 @@ public class CursorManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             if (areaCursor.activeSelf) { SetActiveCursor(pointCursor); }
-            else if (pointCursor.activeSelf) { SetActiveCursor(areaCursor); }
-            else { SetActiveCursor(bubbleCursor); }
+            else if (pointCursor.activeSelf) { SetActiveCursor(bubbleCursor); }
+            else if (bubbleCursor.activeSelf) { SetActiveCursor(areaCursor); }
         }
     }
 
@@ -30,6 +30,7 @@ public class CursorManager : MonoBehaviour
     {
         areaCursor.SetActive(false);
         pointCursor.SetActive(false);
+        bubbleCursor.SetActive(false);
 
         cursor.SetActive(true);
     }

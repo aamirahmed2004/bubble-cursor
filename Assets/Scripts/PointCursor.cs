@@ -10,7 +10,13 @@ public class PointCursor : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Start called on Point");
+    }
+
+    private void Awake()
+    {
         mainCam = Camera.main;
+        Debug.Log("Awake called on Point");
     }
 
     void Update()

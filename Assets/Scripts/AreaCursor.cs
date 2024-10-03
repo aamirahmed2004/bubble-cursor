@@ -14,9 +14,15 @@ public class AreaCursor : MonoBehaviour
     private List<Collider2D> results = new();
     private Collider2D previousDetectedCollider = new();
 
-    private void Awake()
+    private void Start()
+    {
+        Debug.Log("Start called on Area");
+    }
+
+    void Awake()
     {
         mainCam = Camera.main;
+        Debug.Log("Awake called on Area");
     }
 
     void Update()

@@ -39,6 +39,11 @@ public class Target : MonoBehaviour
         StartCoroutine(DestroyGameObject(0.1f));
     }
 
+    public void ChangeColor(Color color)
+    {
+        sprite.color = color;
+    }
+
     public IEnumerator DestroyGameObject(float seconds)
     {
         yield return new WaitForSeconds(seconds);
