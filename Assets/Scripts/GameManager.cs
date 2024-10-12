@@ -1,7 +1,39 @@
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance;
+    public string participantID;
+    public CursorType selectedCursor;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // This line makes it persist across scenes
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void StartStudy()
+    { 
+        SceneManager.LoadScene("Study");
+    }
+}
+
+public enum CursorType
+{
+    Null,
+    BubbleCursor,
+    PointCursor
+}
+
+/*
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private TMP_InputField inputField;
@@ -75,3 +107,4 @@ public class GameManager : MonoBehaviour
         SetActiveCursor(pointCursor);
     }
 }
+*/
