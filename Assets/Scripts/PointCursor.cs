@@ -34,22 +34,20 @@ public class PointCursor : MonoBehaviour
         // Casting a ray straight down, below the cursor
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.zero);
 
-        //Checking if cursor is hovering over targets
-        if(hit.collider != null)
+        if (hit.collider != null)
         {
             detectedCollider = hit.collider;
             UnHoverPreviousTarget(detectedCollider);
             HoverTarget(detectedCollider);
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                SelectTarget(detectedCollider);
+            }
         }
         else
         {
             UnHoverPreviousTarget();
-        }
-
-        // If cursor is clicked, select the target
-        if (Input.GetMouseButtonDown(0))
-        {
-            SelectTarget(detectedCollider);
         }
 
         previousDetectedCollider = detectedCollider;

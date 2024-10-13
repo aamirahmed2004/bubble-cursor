@@ -7,6 +7,9 @@ public class Study : MonoBehaviour
 
     private void Start()
     {
+        if (pointCursor != null) pointCursor.SetActive(false);
+        if (bubbleCursor != null) bubbleCursor.SetActive(false);
+
         SetupCursor(GameManager.Instance.selectedCursor);
     }
 
