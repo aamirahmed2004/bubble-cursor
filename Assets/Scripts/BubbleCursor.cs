@@ -71,13 +71,16 @@ public class BubbleCursor : MonoBehaviour
             }
         }
 
+        Debug.Log(closestTarget.transform.localScale.x);
+        Debug.Log(radius);
+
         /*
         foreach (GameObject target in targets)
         {
             float distanceToTarget = Vector2.Distance(transform.position, target.transform.position);
             distanceToTarget = distanceToTarget - (target.transform.localScale.x) / 2; //subtract the radius 
 
-            if (distanceToTarget < secondMinDistance && target != closestTarget)
+            if (distanceToTarget <= secondMinDistance && target != closestTarget)
             {
                 secondMinDistance = distanceToTarget;
                 secondClosestTarget = target;
@@ -102,8 +105,8 @@ public class BubbleCursor : MonoBehaviour
         if(cursorMask != null)
         {
             cursorMask.transform.localScale = new Vector2(radius*2, radius*2);
-            Debug.Log(cursorMask.transform.localScale.x);
-            Debug.Log(radius);
+            //Debug.Log(cursorMask.transform.localScale.x);
+            //Debug.Log(radius);
         }
 
         // According to algorithm, the above radius is guaranteed to return exactly one collider, so use below line instead if there are no bugs in code
@@ -118,7 +121,7 @@ public class BubbleCursor : MonoBehaviour
             secondaryCircle.transform.position = closestPointOnTarget;
 
             // Adjust the size of the secondary circle to fully cover the closest target
-            float circleRadius = closestTarget.transform.localScale.x *2;
+            float circleRadius = closestTarget.transform.localScale.x * 2;
             secondaryCircle.transform.localScale = Vector2.Lerp(secondaryCircle.transform.localScale, new Vector2(circleRadius, circleRadius), Time.deltaTime * 5);
         }
 
