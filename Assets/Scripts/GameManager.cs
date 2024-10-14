@@ -19,9 +19,24 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    public void GoToMenu()
+    {
+        SceneManager.LoadScene("Menu");
+    }
     public void StartStudy()
     { 
         SceneManager.LoadScene("Study");
+    }
+    public void EndStudy()
+    {
+        SceneManager.LoadScene("End");
+    }
+
+    public void Exit()
+    {
+        Debug.Log("Application has been quit.");
+        Application.Quit();
     }
 }
 

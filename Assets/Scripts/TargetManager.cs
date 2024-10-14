@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 public struct TrialConditions
 {
     public float amplitude;     // Distance from the center
@@ -36,6 +35,9 @@ public class StudySettings
 
 public class TargetManager : MonoBehaviour
 {
+    [SerializeField] private GameObject bubbleCursor;
+    [SerializeField] private GameObject pointCursor;
+
     [SerializeField] private GameObject target;
     [SerializeField] private List<float> targetSizes;
     [SerializeField] private List<float> targetAmplitudes;
@@ -48,7 +50,7 @@ public class TargetManager : MonoBehaviour
     private Vector2 screenCentre;
     private Camera mainCamera;
     private GameObject centerTargetObject;
-    private CursorType chosenCursor;
+    private CursorType originalCursor;
 
     // Hard coding values now, should be serializable in the future
     private StudySettings studySettings;
@@ -57,14 +59,17 @@ public class TargetManager : MonoBehaviour
 
     private void Start()
     {
+        pointCursor.SetActive(false);
+        bubbleCursor.SetActive(false);
+
         InitializeStudySettings();
         CreateSequenceOfTrials();
 
         mainCamera = Camera.main;
         screenCentre = new Vector2(Screen.width / 2, Screen.height / 2);
-        chosenCursor = GameManager.Instance.selectedCursor;
+        originalCursor = GameManager.Instance.selectedCursor;         // Keep track of originally chosen cursor
 
-        SetCursor(CursorType.PointCursor);
+        SetCursor(CursorType.PointCursor);                          // Set cursor to "point cursor" only for start target selection 
         SpawnStartTarget();
     }
 
@@ -76,20 +81,21 @@ public class TargetManager : MonoBehaviour
         // If 0 targets on screen, this means theat the start target was clicked.
         if (numTargetsOnScreen == 0)
         {
-            SetCursor(chosenCursor);
+            SetCursor(originalCursor);                        // Set cursor back to original
             SpawnTargets();
-            Debug.Log("Current trial number: " + currentTrialIndex++);
+            Debug.Log("Current trial number: " + currentTrialIndex);
+            currentTrialIndex++;
         }
-        else if (numTargetsOnScreen == numTargets - 1)      // After targets are spawned, assuming only the main target was clicked
+        else if (numTargetsOnScreen == numTargets - 1)       // After numTargets targets are spawned, assuming only the main target was clicked
         {
-            DestroyAllTargets();
-            SetCursor(CursorType.PointCursor);              // Reset to "point cursor" only for start target selection 
-            SpawnStartTarget();
-        }
-
-        if(currentTrialIndex >= trialSequence.Count)
-        {
-            SceneManager.LoadScene("End");
+            // User if-else block instead of guard clause since accessing GameManager instance is not instant (apparently?) so Start target still spawns after last trial is over.
+            if (currentTrialIndex < trialSequence.Count)
+            {
+                DestroyAllTargets();
+                SetCursor(CursorType.PointCursor);              // Reset to "point cursor" only for start target selection 
+                SpawnStartTarget();
+            }
+            else { GameManager.Instance.EndStudy(); }
         }
     }
 
@@ -97,9 +103,9 @@ public class TargetManager : MonoBehaviour
     private void InitializeStudySettings()
     {
         studySettings = new StudySettings(
-            new List<float> { 1f, 2f},             // Widths
-            new List<float> { 50f, 100f},          // Amplitudes
-            new List<float> { 1.5f, 2f},           // EW to W ratios
+            new List<float> { 1f, 2f, 3f },             // Widths
+            new List<float> { 50f, 100f, 150f },        // Amplitudes
+            new List<float> { 1.5f, 2f, 3f },           // EW to W ratios
             GameManager.Instance.selectedCursor         // cursorType
         );
     }
@@ -231,7 +237,16 @@ public class TargetManager : MonoBehaviour
     }
     private void SetCursor(CursorType cursorType)
     {
-        GameManager.Instance.selectedCursor = cursorType;
+        if (cursorType == CursorType.BubbleCursor)
+        {
+            bubbleCursor.SetActive(true);
+            pointCursor.SetActive(false);
+        }
+        else if (cursorType == CursorType.PointCursor)
+        {
+            bubbleCursor.SetActive(false);
+            pointCursor.SetActive(true);
+        }
     }
 
 }

@@ -407,6 +407,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d2e44d758fca32439f15c5bf004a7b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bubbleCursor: {fileID: 1155543773}
+  pointCursor: {fileID: 1769790271}
   target: {fileID: 5309617415541379050, guid: c46d0307b3e371c46bd04470a6c03c4c, type: 3}
   targetSizes:
   - 0.2
@@ -540,52 +542,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &1152199950
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1152199952}
-  - component: {fileID: 1152199951}
-  m_Layer: 0
-  m_Name: StudyManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1152199951
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152199950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5c7aff0481859e42a8a1f3e8d71cf8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bubbleCursor: {fileID: 1155543773}
-  pointCursor: {fileID: 1769790271}
---- !u!4 &1152199952
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152199950}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 589.9876, y: 227.86052, z: -3.2668653}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1155543773
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,4 +791,3 @@ SceneRoots:
   - {fileID: 1769790273}
   - {fileID: 1155543774}
   - {fileID: 1355200760}
-  - {fileID: 1152199952}

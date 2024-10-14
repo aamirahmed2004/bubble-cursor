@@ -105,8 +105,8 @@ public class BubbleCursor : MonoBehaviour
         if(cursorMask != null)
         {
             cursorMask.transform.localScale = new Vector2(radius*2, radius*2);
-            Debug.Log(cursorMask.transform.localScale.x);
-            Debug.Log(radius);
+            //Debug.Log(cursorMask.transform.localScale.x);
+            //Debug.Log(radius);
         }
 
         // According to algorithm, the above radius is guaranteed to return exactly one collider, so use below line instead if there are no bugs in code
