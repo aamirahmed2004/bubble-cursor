@@ -10,7 +10,6 @@ public class Target : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Start called on Target");
         sprite = GetComponent<SpriteRenderer>();
         originalColor = sprite.color;  // Store the original color
     }

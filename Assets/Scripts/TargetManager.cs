@@ -1,5 +1,38 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+public struct TrialConditions
+{
+    public float amplitude;     // Distance from the center
+    public float width;         // Size of the target (main and distractors)
+    public float EWToW_Ratio;   // Ratio of effective width to target size for distractor placement
+}
+public class StudySettings
+{
+    public List<float> widths;
+    public List<float> amplitudes;
+    public List<float> EWToW_Ratios;
+    public int repetitions;
+    public CursorType cursorType;
+
+    public StudySettings(List<float> widths, List<float> amplitudes, List<float> EWToW_Ratios, int repetitions, CursorType cursorType)
+    {
+        this.widths = widths;
+        this.amplitudes = amplitudes;
+        this.EWToW_Ratios = EWToW_Ratios;
+        this.repetitions = repetitions;
+        this.cursorType = cursorType;
+    }
+    // Default constructor with 1 repetition
+    public StudySettings(List<float> widths, List<float> amplitudes, List<float> EWToW_Ratios, CursorType cursorType)
+    {
+        this.widths = widths;
+        this.amplitudes = amplitudes;
+        this.EWToW_Ratios = EWToW_Ratios;
+        this.repetitions = 1;
+        this.cursorType = cursorType;
+    }
+}
 
 public class TargetManager : MonoBehaviour
 {
@@ -17,11 +50,18 @@ public class TargetManager : MonoBehaviour
     private GameObject centerTargetObject;
     private CursorType chosenCursor;
 
+    // Hard coding values now, should be serializable in the future
+    private StudySettings studySettings;
+    List<TrialConditions> trialSequence;
+    private int currentTrialIndex = 0;
+
     private void Start()
     {
+        InitializeStudySettings();
+        CreateSequenceOfTrials();
 
         mainCamera = Camera.main;
-        screenCentre = new Vector2(Screen.width/2, Screen.height / 2);
+        screenCentre = new Vector2(Screen.width / 2, Screen.height / 2);
         chosenCursor = GameManager.Instance.selectedCursor;
 
         SetCursor(CursorType.PointCursor);
@@ -38,13 +78,56 @@ public class TargetManager : MonoBehaviour
         {
             SetCursor(chosenCursor);
             SpawnTargets();
+            Debug.Log("Current trial number: " + currentTrialIndex++);
         }
         else if (numTargetsOnScreen == numTargets - 1)      // After targets are spawned, assuming only the main target was clicked
         {
-            DestroyAllTargets();                            
+            DestroyAllTargets();
             SetCursor(CursorType.PointCursor);              // Reset to "point cursor" only for start target selection 
             SpawnStartTarget();
         }
+
+        if(currentTrialIndex >= trialSequence.Count)
+        {
+            SceneManager.LoadScene("End");
+        }
+    }
+
+    // Only used once, but since this may be modified in the future to include custom settings I have made it its own function
+    private void InitializeStudySettings()
+    {
+        studySettings = new StudySettings(
+            new List<float> { 1f, 2f},             // Widths
+            new List<float> { 50f, 100f},          // Amplitudes
+            new List<float> { 1.5f, 2f},           // EW to W ratios
+            GameManager.Instance.selectedCursor         // cursorType
+        );
+    }
+
+    // Only used once, but since this may be modified in the future to include custom settings I have made it its own function
+    private void CreateSequenceOfTrials()
+    {
+        trialSequence = new List<TrialConditions>();
+        for (int i = 0; i < studySettings.repetitions; i++)
+        {
+            foreach (float EW in studySettings.EWToW_Ratios)
+            {
+                foreach (float size in studySettings.widths)
+                {
+                    foreach (float amp in studySettings.amplitudes)
+                    {
+
+                        trialSequence.Add(new TrialConditions
+                        {
+                            amplitude = amp,
+                            width = size,
+                            EWToW_Ratio = EW,
+                        });
+                    }
+                }
+            }
+        }
+        trialSequence = YatesShuffle<TrialConditions>(trialSequence);
     }
 
     private void SpawnStartTarget()
@@ -54,66 +137,54 @@ public class TargetManager : MonoBehaviour
 
         centerTargetObject = Instantiate(target, worldCenter, Quaternion.identity, transform);
         centerTargetObject.transform.localScale = Vector3.one * 0.5f;
-        
+
         if (centerTargetObject.TryGetComponent(out Target centerTarget))
         {
             Debug.Log("Changing target color to Red");
             centerTarget.ChangeColor(Color.red);
-        }   
+        }
     }
     private void SpawnTargets()
     {
+        SpawnMainTarget(trialSequence[currentTrialIndex]);
+        SpawnOtherTargets();
+    }
+
+
+    private void SpawnMainTarget(TrialConditions trial)
+    {
+        // Calculate main target position based on amplitude
+        Vector3 mainTargetPosition = mainCamera.ScreenToWorldPoint(
+            new Vector3(screenCentre.x + trial.amplitude, screenCentre.y, 10f));
+
+        // Instantiate the main target
+        GameObject mainTargetObject = Instantiate(target, mainTargetPosition, Quaternion.identity, transform);
+        mainTargetObject.transform.localScale = Vector3.one * trial.width;
+
+        if (mainTargetObject.TryGetComponent(out Target mainTarget))
+        {
+            Debug.Log("Setting main target color to Red");
+            mainTarget.ChangeColor(Color.red);  // Set the main target color to red
+        }
+    }
+
+    private void SpawnOtherTargets()
+    {
         List<Vector3> points = GenerateRandomPoints();
         List<float> randomSizes = GenerateRandomSizes();
-        for (int i = 0; i < numTargets; i++)
+
+        // Spawn random targets
+        for (int i = 0; i < numTargets - 1; i++)
         {
             GameObject targetObject = Instantiate(target, points[i], Quaternion.identity, transform);
             targetObject.transform.localScale = Vector3.one * randomSizes[i];
-
-            if (i == numTargets - 1 && targetObject.TryGetComponent(out Target mainTarget))
-            { 
-                Debug.Log("Changing main target color to Red");
-                mainTarget.ChangeColor(Color.red);
-            }
         }
     }
-
-    private void DestroyAllTargets()
-    {
-        foreach (GameObject target in targetObjects)
-        {
-            Destroy(target);
-        }
-    }
-
-    /*
-    private void CheckCenterTargetClicked()
-    {
-        Vector3 mousePosition = Input.mousePosition;
-
-        //Change the z position so that cursor does not get occluded by the camera
-        mousePosition.z += 9f;
-        mousePosition.x = Mathf.Clamp(mousePosition.x, 0f, Screen.width);
-        mousePosition.y = Mathf.Clamp(mousePosition.y, 0f, Screen.height);
-        Vector3 worldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
-
-        RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero);
-
-        // If a collider is hit and it matches the center target
-        if (hit.collider != null && hit.collider.gameObject == centerTargetObject && !centerTargetClicked)
-        {
-            centerTargetClicked = true;
-            Destroy(centerTargetObject);  // Remove the center target after clicking
-            GameManager.Instance.selectedCursor = chosen;
-            SpawnTargets();  // Spawn the remaining targets
-        }
-    }
-    */
 
     List<Vector3> GenerateRandomPoints()
     {
         List<Vector3> pointList = new();
-        for (int i = 0; i < numTargets-1; i++)
+        for (int i = 0; i < numTargets - 1; i++)
         {
             float randomX = Random.Range(0, Screen.width);
             float randomY = Random.Range(0, Screen.height);
@@ -128,7 +199,7 @@ public class TargetManager : MonoBehaviour
     List<float> GenerateRandomSizes()
     {
         List<float> sizes = new();
-        for (int i = 0; i < numTargets-1; i++)
+        for (int i = 0; i < numTargets - 1; i++)
         {
             int randomIndex = Random.Range(0, targetSizes.Count);
             sizes.Add(targetSizes[randomIndex]);
@@ -136,28 +207,28 @@ public class TargetManager : MonoBehaviour
 
         return sizes;
     }
-
-    /*
-    private void GetAllColliders()
+    private static List<T> YatesShuffle<T>(List<T> list)
     {
-        // Unity uses (0,0) for bottom-left of the screen
-        Vector2 topLeftScreen = new Vector2(0, Screen.height);
-        Vector2 bottomRightScreen = new Vector2(Screen.width, 0);
-
-        Vector2 topLeftWorld = mainCamera.ScreenToWorldPoint(new Vector3(topLeftScreen.x, topLeftScreen.y, 10));
-        Vector2 bottomRightWorld = mainCamera.ScreenToWorldPoint(new Vector3(bottomRightScreen.x, bottomRightScreen.y, 10));
-
-        Physics2D.OverlapArea(topLeftWorld, bottomRightWorld, contactFilter, targetColliders);
-
-        //Debug.Log(targetColliders.Count);
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            (list[i], list[randomIndex]) = (list[randomIndex], list[i]);
+        }
+        return list;
     }
-    */
 
     private void GetAllTargets()
     {
         targetObjects = GameObject.FindGameObjectsWithTag("Target");
     }
 
+    private void DestroyAllTargets()
+    {
+        foreach (GameObject target in targetObjects)
+        {
+            Destroy(target);
+        }
+    }
     private void SetCursor(CursorType cursorType)
     {
         GameManager.Instance.selectedCursor = cursorType;
